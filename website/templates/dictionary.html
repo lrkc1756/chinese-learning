@@ -1,6 +1,29 @@
-{% extends "base.html" %}
-{% block title %}Demo{% endblock %}
-
-{% block content %}
-
-{% endblock %}
+<table>
+  <tr>
+    <th>Chinese</th>
+    <th>Pinyin</th>
+    <th>English</th>
+    <th>Audio</th>
+    <th>Image</th>
+  </tr>
+  {% for word in words %}
+  <tr>
+    <td>{{ word.chinese }}</td>
+    <td>{{ word.pinyin }}</td>
+    <td>{{ word.english }}</td>
+    <td>
+      <button onclick="this.nextElementSibling.play()">🔊 Play</button>
+      <audio>
+        <source 
+          src="https://api.voicerss.org/?key=107f190147ab4b6e91fc3d620792254b&hl=zh-tw&src={{ word.chinese | urlencode }}" 
+          type="audio/mpeg">
+        Your browser does not support the audio element.
+      </audio>
+    </td>
+    
+    <td>
+      <img src="{{ word.image }}" alt="{{ word.english }}" width="80">
+    </td>
+  </tr>
+  {% endfor %}
+</table>

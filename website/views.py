@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from .models import Note
 from . import db
 import json
+import os
 
 views = Blueprint('views', __name__)
 
@@ -43,8 +44,10 @@ def contact():
 
 @views.route('/dictionary')
 def dictionary():
-    return render_template("demo.html", user=current_user)
-
+    json_path = os.path.join(os.path.dirname(__file__), 'static', 'data', 'hsk1_sample.json')
+    with open(json_path, encoding='utf-8') as f:
+        words = json.load(f)
+    return render_template("dictionary.html", words=words, user=current_user)
 
 @views.route('/about')
 def about():
