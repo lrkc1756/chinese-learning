@@ -41,8 +41,8 @@ def contact():
     ]
     return render_template("contact.html", people=people, user=current_user)
 
-@views.route('/demo')
-def demo():
+@views.route('/dictionary')
+def dictionary():
     return render_template("demo.html", user=current_user)
 
 
