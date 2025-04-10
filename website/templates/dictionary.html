@@ -11,7 +11,9 @@
     <td style="color: {% if word.part_of_speech == 'noun' %}green{% elif word.part_of_speech == 'verb' %}blue{% elif word.part_of_speech == 'adjective' %}yellow{% elif word.part_of_speech == 'adverb' %}orange{% elif word.part_of_speech == 'pronoun' %}purple{% elif word.part_of_speech == 'preposition' %}pink{% elif word.part_of_speech == 'conjunction' %}grey{% elif word.part_of_speech == 'interjection' %}red{% elif word.part_of_speech == 'measure word' %}brown{% elif word.part_of_speech == 'particle' %}lightblue{% endif %}">
       {{ word.chinese }}
     </td>
-    <td>{{ word.pinyin }}</td>
+    <td style="color: {% if word.part_of_speech == 'noun' %}green{% elif word.part_of_speech == 'verb' %}blue{% elif word.part_of_speech == 'adjective' %}yellow{% elif word.part_of_speech == 'adverb' %}orange{% elif word.part_of_speech == 'pronoun' %}purple{% elif word.part_of_speech == 'preposition' %}pink{% elif word.part_of_speech == 'conjunction' %}grey{% elif word.part_of_speech == 'interjection' %}red{% elif word.part_of_speech == 'measure word' %}brown{% elif word.part_of_speech == 'particle' %}lightblue{% endif %}">
+      {{ word.pinyin }}
+    </td>
     <td>{{ word.english }}</td>
     <td>
       <button onclick="this.nextElementSibling.play()">🔊 Play</button>
