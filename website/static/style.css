@@ -29,4 +29,29 @@
     color: #1A1A1A !important;  /* Dark gray */
     font-weight: bold;
   }
+
+
+/* Golden yellow theme for Chinese app buttons */
+.btn-yellow {
+  background-color: #FFDE00;         /* Flag yellow */
+  border-color: #FFDE00;
+  color: #1A1A1A;                    /* Deep text color for contrast */
+  font-weight: bold;
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+.btn-yellow:hover {
+  background-color: #e6c800;         /* Slightly darker yellow */
+  border-color: #e6c800;
+  color: #000;
+}
+
+.btn-yellow:active,
+.btn-yellow:focus {
+  background-color: #c0a800;         /* Deeper gold when pressed */
+  border-color: #c0a800;
+  color: #000;
+  box-shadow: none;
+}
+
   
