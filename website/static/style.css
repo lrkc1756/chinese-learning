@@ -1,5 +1,5 @@
 .custom-navbar {
-    background-color: #003399;
+    background-color: #DE2910;
   }
   
 /* Custom Navbar Text */
@@ -9,7 +9,7 @@
   
   /* Optional: hover effect */
   .custom-navbar .nav-link:hover {
-    color: #ffffff !important; /* White on hover for contrast */
+    color: #8B0000 !important; /* White on hover for contrast */
   }
   
 
