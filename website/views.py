@@ -6,6 +6,7 @@ import requests
 import json
 import os
 from urllib.parse import quote
+from .models import ChineseWord
 
 views = Blueprint('views', __name__)
 
@@ -63,21 +64,21 @@ def load_sample_data():
 def dictionary():
     # Try to fetch from Moedict API first
     search_term = request.args.get('search', '')
-    words = []
+    words = ChineseWord.query.all()
     
     if search_term:
         # Fetch from Moedict API
         moedict_data = get_moedict_entry(search_term)
         if moedict_data:
             words.append(format_moedict_data(moedict_data))
-    else:
-        # Fallback to sample data
-        words = load_sample_data()
     
     # Add audio URLs to all words
     for word in words:
-        word['audio'] = f"https://api.voicerss.org/?key=107f190147ab4b6e91fc3d620792254b&hl=zh-tw&src={quote(word['chinese'])}&c=MP3"
-    
+        if isinstance(word, dict):
+            word['audio'] = f"https://api.voicerss.org/?key=107f190147ab4b6e91fc3d620792254b&hl=zh-tw&src={quote(word['chinese'])}&c=MP3"
+        else:
+            word.audio = f"https://api.voicerss.org/?key=107f190147ab4b6e91fc3d620792254b&hl=zh-tw&src={quote(word.chinese)}&c=MP3"
+
     return render_template('dictionary.html', words=words, user=current_user)
 
 
