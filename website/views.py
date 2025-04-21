@@ -2,8 +2,10 @@ from flask import Blueprint, render_template, request, flash, jsonify
 from flask_login import login_required, current_user
 from .models import ChineseWord, KnownWord, CustomWord, User
 from . import db
+import requests
 import json
 import os
+from urllib.parse import quote
 
 views = Blueprint('views', __name__)
 
@@ -31,7 +33,7 @@ def home():
                 db.session.commit()
                 flash('Word added to known words!', category='success')
 
-    return render_template("dictionary.html", demonstrator=demonstrator, user=current_user)
+    return render_template("home.html", demonstrator=demonstrator, user=current_user)
 
 
 
@@ -43,13 +45,44 @@ def contact():
     ]
     return render_template("contact.html", people=people, user=current_user)
 
-@views.route('/dictionary')
+
+def load_sample_data():
+    return [
+        {
+            "chinese": "蘋果",
+            "pinyin": "píngguǒ",
+            "english": "apple",
+            "part_of_speech": "noun",
+            "audio": "https://www.moedict.tw/音檔/%E8%98%8B%E6%9E%9C.mp3",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/1/15/Red_Apple.jpg"
+        }
+    ]
+    
+    
+@views.route('/dictionary', methods=['GET', 'POST'])
 def dictionary():
-    json_path = os.path.join(os.path.dirname(__file__), 'static', 'data', 'hsk1_sample.json')
-    with open(json_path, encoding='utf-8') as f:
-        words = json.load(f)
-    return render_template("dictionary.html", words=words, user=current_user)
+    # Try to fetch from Moedict API first
+    search_term = request.args.get('search', '')
+    words = []
+    
+    if search_term:
+        # Fetch from Moedict API
+        moedict_data = get_moedict_entry(search_term)
+        if moedict_data:
+            words.append(format_moedict_data(moedict_data))
+    else:
+        # Fallback to sample data
+        words = load_sample_data()
+    
+    # Add audio URLs to all words
+    for word in words:
+        word['audio'] = f"https://api.voicerss.org/?key=107f190147ab4b6e91fc3d620792254b&hl=zh-tw&src={quote(word['chinese'])}&c=MP3"
+    
+    return render_template('dictionary.html', words=words, user=current_user)
+
 
 @views.route('/about')
 def about():
     return render_template("about.html", user=current_user)
+
+

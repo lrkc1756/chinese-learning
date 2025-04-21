@@ -1,38 +1,58 @@
 {% extends "base.html" %}
 {% block content %}
 
-<table>
-  <tr>
-    <th>Chinese</th>
-    <th>Pinyin</th>
-    <th>English</th>
-    <th>Audio</th>
-    <th>Image</th>
-  </tr>
-  {% for word in words %}
-  <tr>
-    <td style="color: {% if word.part_of_speech == 'noun' %}green{% elif word.part_of_speech == 'verb' %}blue{% elif word.part_of_speech == 'adjective' %}yellow{% elif word.part_of_speech == 'adverb' %}orange{% elif word.part_of_speech == 'pronoun' %}purple{% elif word.part_of_speech == 'preposition' %}pink{% elif word.part_of_speech == 'conjunction' %}grey{% elif word.part_of_speech == 'interjection' %}red{% elif word.part_of_speech == 'measure word' %}brown{% elif word.part_of_speech == 'particle' %}lightblue{% endif %}">
-      {{ word.chinese }}
-    </td>
-    <td style="color: {% if word.part_of_speech == 'noun' %}green{% elif word.part_of_speech == 'verb' %}blue{% elif word.part_of_speech == 'adjective' %}yellow{% elif word.part_of_speech == 'adverb' %}orange{% elif word.part_of_speech == 'pronoun' %}purple{% elif word.part_of_speech == 'preposition' %}pink{% elif word.part_of_speech == 'conjunction' %}grey{% elif word.part_of_speech == 'interjection' %}red{% elif word.part_of_speech == 'measure word' %}brown{% elif word.part_of_speech == 'particle' %}lightblue{% endif %}">
-      {{ word.pinyin }}
-    </td>
-    <td>{{ word.english }}</td>
-    <td>
-      <button onclick="this.nextElementSibling.play()">🔊 Play</button>
-      <audio>
-        <source 
-          src="https://api.voicerss.org/?key=107f190147ab4b6e91fc3d620792254b&hl=zh-tw&src={{ word.chinese | urlencode }}" 
-          type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-    </td>
-    
-    <td>
-      <img src="{{ word.image }}" alt="{{ word.english }}" width="80">
-    </td>
-  </tr>
-  {% endfor %}
+<div class="search-container">
+  <form method="get" action="{{ url_for('views.dictionary') }}">
+    <input type="text" name="search" placeholder="Search Chinese words..." value="{{ request.args.get('search', '') }}">
+    <button type="submit">Search</button>
+  </form>
+</div>
+
+<table class="dictionary-table">
+  <thead>
+    <tr>
+      <th>Chinese</th>
+      <th>Pinyin</th>
+      <th>English</th>
+      <th>Audio</th>
+      <th>Image</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for word in words %}
+    <tr>
+      <td style="color: {% if word.part_of_speech == 'noun' %}green{% elif word.part_of_speech == 'verb' %}blue{% elif word.part_of_speech == 'adjective' %}yellow{% elif word.part_of_speech == 'adverb' %}orange{% elif word.part_of_speech == 'pronoun' %}purple{% elif word.part_of_speech == 'preposition' %}pink{% elif word.part_of_speech == 'conjunction' %}grey{% elif word.part_of_speech == 'interjection' %}red{% elif word.part_of_speech == 'measure word' %}brown{% elif word.part_of_speech == 'particle' %}lightblue{% endif %}">
+        {{ word.chinese }}
+      </td>
+      <td>{{ word.pinyin }}</td>
+      <td>{{ word.english }}</td>
+      <td>
+        {% if word.audio %}
+        <button class="play-button" onclick="playAudio(this)" data-audio-url="{{ word.audio }}">
+          🔊 Play
+        </button>
+        {% else %}
+        No audio
+        {% endif %}
+      </td>
+      <td>
+        {% if word.image %}
+        <img src="{{ word.image }}" alt="{{ word.english }}" width="80">
+        {% else %}
+        No image
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
+
+<script>
+function playAudio(button) {
+  const audioUrl = button.getAttribute('data-audio-url');
+  const audio = new Audio(audioUrl);
+  audio.play().catch(e => console.error("Audio playback failed:", e));
+}
+</script>
 
 {% endblock %}
