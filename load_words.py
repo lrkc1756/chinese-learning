@@ -1,5 +1,6 @@
 from website import create_app, db
 from website.models import ChineseWord
+import json
 
 app = create_app()
 
@@ -10,19 +11,10 @@ with app.app_context():
     db.drop_all()
     db.create_all()
 
-    words = [
-        {"chinese": "蘋果", "pinyin": "píngguǒ", "english": "apple", "part_of_speech": "noun"},
-        {"chinese": "喜歡", "pinyin": "xǐhuān", "english": "to like", "part_of_speech": "verb"},
-        {"chinese": "吃", "pinyin": "chī", "english": "to eat", "part_of_speech": "verb"},
-        {"chinese": "書", "pinyin": "shū", "english": "book", "part_of_speech": "noun"},
-        {"chinese": "學生", "pinyin": "xuéshēng", "english": "student", "part_of_speech": "noun"},
-        {"chinese": "喝", "pinyin": "hē", "english": "to drink", "part_of_speech": "verb"},
-        {"chinese": "漂亮", "pinyin": "piàoliang", "english": "beautiful", "part_of_speech": "adjective"},
-        {"chinese": "快樂", "pinyin": "kuàilè", "english": "happy", "part_of_speech": "adjective"},
-        {"chinese": "跑", "pinyin": "pǎo", "english": "to run", "part_of_speech": "verb"},
-        {"chinese": "狗", "pinyin": "gǒu", "english": "dog", "part_of_speech": "noun"},
-        # Add more here
-    ]
+
+    with open('website/static/data/hsk1_sample.json', encoding='utf-8') as f:
+       words = json.load(f)
+
 
     for entry in words:
         word = ChineseWord(**entry)
