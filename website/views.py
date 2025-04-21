@@ -78,8 +78,34 @@ def dictionary():
             word['audio'] = f"https://api.voicerss.org/?key=107f190147ab4b6e91fc3d620792254b&hl=zh-tw&src={quote(word['chinese'])}&c=MP3"
         else:
             word.audio = f"https://api.voicerss.org/?key=107f190147ab4b6e91fc3d620792254b&hl=zh-tw&src={quote(word.chinese)}&c=MP3"
+            
+    if current_user.is_authenticated:
+        known_word_ids = {kw.word_id for kw in current_user.known_words}
+    else:
+        known_word_ids = set()
 
-    return render_template('dictionary.html', words=words, user=current_user)
+
+    return render_template('dictionary.html', words=words, known_word_ids=known_word_ids, user=current_user)
+
+
+@views.route('/mark_known', methods=['POST'])
+@login_required
+def mark_known():
+    data = request.get_json()
+    word_id = data.get('word_id')
+
+    if not word_id:
+        return jsonify({'success': False, 'message': 'No word ID provided'}), 400
+
+    already_known = KnownWord.query.filter_by(user_id=current_user.id, word_id=word_id).first()
+
+    if already_known:
+        return jsonify({'success': True, 'message': 'Already known'})
+    else:
+        new_known = KnownWord(word_id=word_id, user_id=current_user.id)
+        db.session.add(new_known)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Word saved'})
 
 
 @views.route('/about')
