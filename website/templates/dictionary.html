@@ -16,6 +16,7 @@
       <th>English</th>
       <th>Audio</th>
       <th>Image</th>
+      <th>Save</th> 
     </tr>
   </thead>
   <tbody>
@@ -42,6 +43,12 @@
         No image
         {% endif %}
       </td>
+      <td>     
+        <form method="POST" action="{{ url_for('views.home') }}">
+        <input type="hidden" name="word_id" value="{{ word.id }}">
+        <button type="submit" class="known-button">✓ Known</button>
+        </form>
+    </td>
     </tr>
     {% endfor %}
   </tbody>
