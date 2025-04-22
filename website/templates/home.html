@@ -2,7 +2,119 @@
 {% block title %}Home{% endblock %}
 {% block content %}
 
+<div class="chat-container">
+    <div class="chat-box" id="chatBox"></div>
+    
+    <div class="interactive-area" id="interactiveArea">
+        <!-- Word bubbles will appear here -->
+    </div>
+    
+    <button id="newSentenceBtn">生成新句子</button>
+</div>
 
+<script>
+// Global variable to track current sentence state
+let currentSentence = {};
+let currentPositions = [];
+
+// Generate new interactive sentence
+document.getElementById('newSentenceBtn').addEventListener('click', generateNewSentence);
+
+function generateNewSentence() {
+    fetch('/get_interactive')
+        .then(response => response.json())
+        .then(data => {
+            currentSentence = data;
+            renderWordBubbles(data);
+        });
+}
+
+function renderWordBubbles(data) {
+    const container = document.getElementById('interactiveArea');
+    container.innerHTML = '';
+    
+    let sentence = data.base_sentence;
+    const predictions = data.predictions;
+    currentPositions = Object.keys(predictions).sort((a,b) => a-b);
+    
+    // Split sentence into parts
+    let parts = [];
+    let lastPos = 0;
+    
+    currentPositions.forEach(pos => {
+        parts.push(sentence.slice(lastPos, pos));
+        parts.push({type: 'mask', pos: pos});
+        lastPos = pos + 6; // length of [MASK]
+    });
+    parts.push(sentence.slice(lastPos));
+    
+    // Create interactive elements
+    const sentenceElement = document.createElement('div');
+    sentenceElement.className = 'interactive-sentence';
+    
+    parts.forEach((part, index) => {
+        if (typeof part === 'string') {
+            const span = document.createElement('span');
+            span.textContent = part;
+            sentenceElement.appendChild(span);
+        } else {
+            const pos = part.pos;
+            const bubbleContainer = document.createElement('div');
+            bubbleContainer.className = 'bubble-container';
+            
+            predictions[pos].forEach(word => {
+                const bubble = document.createElement('div');
+                bubble.className = 'word-bubble';
+                bubble.textContent = word;
+                bubble.onclick = () => selectWord(pos, word);
+                bubbleContainer.appendChild(bubble);
+            });
+            
+            sentenceElement.appendChild(bubbleContainer);
+        }
+    });
+    
+    container.appendChild(sentenceElement);
+    
+    // Add submit button
+    const submitBtn = document.createElement('button');
+    submitBtn.textContent = '完成句子';
+    submitBtn.onclick = submitSentence;
+    container.appendChild(submitBtn);
+}
+
+function selectWord(pos, word) {
+    // Update the base sentence with selected word
+    currentSentence.base_sentence = 
+        currentSentence.base_sentence.substring(0, pos) + 
+        word + 
+        currentSentence.base_sentence.substring(pos + 6);
+    
+    // Re-render bubbles
+    renderWordBubbles(currentSentence);
+}
+
+function submitSentence() {
+    fetch('/complete_sentence', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            'sentence': currentSentence.base_sentence
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const chatBox = document.getElementById('chatBox');
+        chatBox.innerHTML += `
+            <div class="user-message">${currentSentence.base_sentence}</div>
+            <div class="bot-message">${data.translation}</div>
+        `;
+        generateNewSentence();
+    });
+}
+</script>
     
     {% endblock %}
   

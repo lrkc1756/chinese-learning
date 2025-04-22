@@ -8,6 +8,11 @@ import os
 from urllib.parse import quote
 from .models import ChineseWord
 
+from chatbot import DynamicChineseChatBot
+
+dynamic_chatbot = DynamicChineseChatBot()
+
+
 views = Blueprint('views', __name__)
 
 
@@ -113,3 +118,26 @@ def about():
     return render_template("about.html", user=current_user)
 
 
+@views.route('/get_interactive', methods=['GET'])
+@login_required
+def get_interactive():
+    print("📡 /get_interactive route hit")
+    try:
+        response = dynamic_chatbot.generate_interactive_response(current_user.id)
+        print("✅ Generated interactive sentence:", response)
+        return jsonify(response)
+    except Exception as e:
+        import traceback
+        print("❌ Error in /get_interactive:")
+        traceback.print_exc()  # <-- This gives detailed error info
+        return jsonify({"error": str(e)}), 500
+
+@views.route('/complete_sentence', methods=['POST'])
+@login_required
+def complete_sentence():
+    data = request.json
+    sentence = data['sentence']
+    return jsonify({
+        "completed": sentence,
+        "translation": "This would be a translation"  # Add real translation logic
+    })
